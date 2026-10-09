@@ -1,0 +1,24 @@
+PROTOCOL SAKHA — APK / PDF / SAVE-SHARE WORK NOTES
+
+Applied source/workflow changes:
+1. APK workflow bundles html2canvas and jsPDF locally; PDF generation no longer relies solely on an internet CDN.
+2. APK workflow bundles official Capacitor Filesystem, Share, and App JavaScript plugin proxies.
+3. Capacitor bridge and plugin scripts are loaded before the app's later scripts.
+4. Gujarati font files are copied into the Android web assets and the APK's font paths are adjusted, so the font does not depend on files outside Capacitor's webDir.
+5. Native PDF export writes to Documents/PROTOCOL-SAKHA/Exports and then opens Android's share sheet.
+6. Native blob-download links use Capacitor Filesystem/Share; backup-like downloads are written to Documents/PROTOCOL-SAKHA/Backups before sharing.
+7. The original www/index.html layout and content have been preserved except for export plumbing and the workflow-specific font path adjustment.
+
+Static validation completed:
+- APK and EXE workflow YAML parsed successfully.
+- Inline JavaScript syntax checks passed.
+- native-shim.js and native-plugins-entry.js syntax checks passed.
+
+Not yet verified:
+- A real APK build from GitHub Actions.
+- PDF output, Android file saving/sharing, Station Demand and Rotation exports on a physical phone.
+- Data migration/restore across reinstall or between devices.
+
+Important:
+- Do not uninstall the currently working app or clear its storage before taking and checking a backup.
+- The ZIP contains the existing signing keystore so the workflow can sign with the same key. Do NOT commit this keystore or its password to a public GitHub repository. Use a private repository and protect the signing key; for a public repository, move signing to GitHub Actions secrets before uploading the source.
