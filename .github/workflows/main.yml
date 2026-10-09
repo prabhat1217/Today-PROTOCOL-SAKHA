@@ -1,7 +1,7 @@
 name: Build PROTOCOL SAKHA APK and EXE
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
 
 jobs:
   build-apk:
@@ -24,17 +24,16 @@ jobs:
           java-version: 17
 
       - name: Prepare Capacitor Project
+        working-directory: PROTOCOL-SAKHA-project
         run: |
-          mkdir cap
+          mkdir -p cap
           cp -r www assets cap/
-          mkdir -p cap/www/assets
+          mkdir -p cap/www/assets cap/www/lib
           cp assets/NotoSansGujarati-Regular.ttf assets/NotoSansGujarati-Bold.ttf cap/www/assets/
-          sed -i 's#../assets/NotoSansGujarati-#assets/NotoSansGujarati-#g' cap/www/index.html
-          cp native-shim.js cap/www/native-shim.js
-          cp native-plugins-entry.js cap/
-          cp capacitor.config.json protocol-sakha.keystore patch_gradle.py cap/
-          mkdir -p cap/www/lib
+          cp www/native-shim.js cap/www/native-shim.js
+          cp native-plugins-entry.js capacitor.config.json protocol-sakha.keystore patch_gradle.py cap/
           cd cap
+          sed -i 's#../assets/NotoSansGujarati-#assets/NotoSansGujarati-#g' www/index.html
           grep -q 'lib/native-plugins.js' www/index.html || sed -i 's#</head>#<script src="capacitor.js"></script><script src="lib/native-plugins.js"></script><script src="native-shim.js"></script></head>#' www/index.html
           npm init -y
           npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/filesystem@6 @capacitor/share@6 @capacitor/app@6
@@ -49,13 +48,14 @@ jobs:
           npx cap sync android
 
       - name: Build APK
+        working-directory: PROTOCOL-SAKHA-project/cap/android
         run: |
-          cd cap/android
           chmod +x gradlew
           ./gradlew assembleRelease
 
       - name: Prepare APK
-        run: cp cap/android/app/build/outputs/apk/release/app-release.apk PROTOCOL-SAKHA.apk
+        run: |
+          cp PROTOCOL-SAKHA-project/cap/android/app/build/outputs/apk/release/app-release.apk PROTOCOL-SAKHA.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -77,9 +77,11 @@ jobs:
           node-version: 20
 
       - name: Install Dependencies
+        working-directory: PROTOCOL-SAKHA-project
         run: npm install
 
       - name: Build EXE
+        working-directory: PROTOCOL-SAKHA-project
         run: npx electron-builder --win portable --x64
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
@@ -88,4 +90,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PROTOCOL-SAKHA-exe
-          path: dist/PROTOCOL-SAKHA.exe
+          path: PROTOCOL-SAKHA-project/dist/PROTOCOL-SAKHA.exe
